@@ -14,6 +14,8 @@ void error(const char *msg)
     exit(1);
 }
 
+int main(int argc, char *argv[])
+{
 int sockfd, newsockfd, portno;
 int passValue;
 char* pass;
@@ -54,3 +56,6 @@ while(1)
 
   close(newsockfd);
   close(sockfd);
+  
+  return 0;
+}
