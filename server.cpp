@@ -8,6 +8,12 @@
 #include <vector>
 #include <iostream>
 
+void error(const char *msg)
+{
+    perror(msg);
+    exit(1);
+}
+
 int sockfd, newsockfd, portno;
 int passValue;
 char* pass;
@@ -40,25 +46,10 @@ while(1)
     n = read(newsockfd,buffer,255);
     if (n < 0) error("ERROR reading from socket");
 
-    printf("\nReceived request for test number: %s\n",buffer);
-
-    passValue = handleRequest(buffer/*, &years, &terms, &courses, &students, cm1*/);
-
-    if(passValue == 0)
-    {
-      pass = "0";
-    }
-    else if(passValue == 1)
-    {
-      pass = "1";
-    }
-      else
-    {
-      break;
-    }
-      write(newsockfd,pass,strlen(pass));
-      bzero(buffer,256);
-    }
+    //this is where we handle the requests
+    
+    //DO NOT forget to break out of this loop upon errors or window closes
+        //otherwise the server won't move on to the next client
   }
 
   close(newsockfd);
