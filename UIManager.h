@@ -15,6 +15,8 @@ private:
     int portno;
     int sockfd;
     int passValue;
+    int argv;
+    char *argc;
     //CoursesView *c;
     //ContentsView *cont;
 
