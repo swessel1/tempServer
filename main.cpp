@@ -9,7 +9,7 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    UIManager ui(&a, argc, argv);
+    UIManager ui(argc, argv, &a);
     ui.control();
     cout <<"Done!"<<endl;
 
