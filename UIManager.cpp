@@ -11,8 +11,16 @@
 #include <sstream>
 using namespace std;
 
-UIManager::UIManager(QApplication *tempA): a(tempA), portno(6001), passValue(1)
+#include "PracticalSocket.h"  // For Socket and SocketException
+#include <cstdlib>            // For atoi()
+
+
+const int RCVBUFSIZE = 32;    // Size of receive buffer
+
+UIManager::UIManager(int ac, char* av[], QApplication *tempA): a(tempA), portno(6000), passValue(1)
+  //  argc(ac)
 {
+  //  argv[0] = av[0];
 }
 /* testing */
 /*vector<string> yLis;
@@ -24,8 +32,8 @@ vector <string> contLis;
 
 void UIManager::control(){
     int i=0;
-  //  while(1){
-    //connectTo();
+  //  while(1){cout<<"eder"<<endl;
+      connectTo();
       openLoginView(false);
      /* if (m->exited())
           break;
@@ -56,30 +64,51 @@ void UIManager::error(const char *msg)
  *IN: N/A
  *RETURNS: void
  */
-void UIManager::connectTo()
+int UIManager::connectTo()
 {
-    struct sockaddr_in serv_addr;
-    struct hostent *server;
+    /*if ((argc < 3) || (argc > 4)) {     // Test for correct number of arguments
+       cerr << "Usage: " << argv[0]
+            << " <Server> <Echo String> [<Server Port>]" << endl;
+       exit(1);
+     }*/
 
-    char buffer[256];
-    sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    if (sockfd < 0)
-        error("ERROR opening socket");
-    server = gethostbyname("127.0.0.1");
-    if (server == NULL) {
-        fprintf(stderr,"ERROR, no such host\n");
-        exit(0);
-    }
-    bzero((char *) &serv_addr, sizeof(serv_addr));
-    serv_addr.sin_family = AF_INET;
-    bcopy((char *)server->h_addr,
-         (char *)&serv_addr.sin_addr.s_addr,
-         server->h_length);
-    serv_addr.sin_port = htons(portno);
-    if (connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0)
-        error("ERROR connecting");
-    bzero(buffer,256);
-    runTest("0");
+    string servAddress = "10.0.2.15"; // First arg: server address
+     char *echoString = "bdsse";   // Second arg: string to echo
+     int echoStringLen = strlen(echoString);   // Determine input length
+     unsigned short echoServPort = 6000;//(argc == 4) ? atoi(argv[3]) : 7;
+
+     try {
+       // Establish connection with the echo server
+       TCPSocket sock(servAddress, echoServPort);
+
+       // Send the string to the echo server
+       sock.send(echoString, echoStringLen);
+
+       char echoBuffer[RCVBUFSIZE + 1];    // Buffer for echo string + \0
+       int bytesReceived = 0;              // Bytes read on each recv()
+       int totalBytesReceived = 0;         // Total bytes read
+       // Receive the same string back from the server
+       cout << "Received: ";               // Setup to print the echoed string
+       while (totalBytesReceived < echoStringLen) {
+         // Receive up to the buffer size bytes from the sender
+         if ((bytesReceived = (sock.recv(echoBuffer, RCVBUFSIZE))) <= 0) {
+           cerr << "Unable to read";
+           exit(1);
+         }
+         totalBytesReceived += bytesReceived;     // Keep tally of total bytes
+         echoBuffer[bytesReceived] = '\0';        // Terminate the string!
+         cout << echoBuffer;                      // Print the echo buffer
+       }
+       cout << endl;
+
+       // Destructor closes the socket
+
+     } catch(SocketException &e) {
+       cerr << e.what() << endl;
+       exit(1);
+     }
+
+     return 0;
 }
 
 /*
