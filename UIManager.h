@@ -16,13 +16,13 @@ private:
     int sockfd;
     int passValue;
     int argc;
-    char *argv[];
+    char* argv[];
     //CoursesView *c;
     //ContentsView *cont;
 
 public:
-    UIManager(QApplication* = 0);
-    void connectTo();
+    UIManager(int, char*[], QApplication* = 0);
+    int connectTo();
     int getPassValue();
     void runTest(char*);
     void closeConnection();
